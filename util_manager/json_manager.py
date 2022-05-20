@@ -1,9 +1,11 @@
 import os
 import json
 
+from util_manager.list_manager import ListManager
+
 
 class JsonManager(object):
-    """ 一个操作 JSON 的通用封装类 """
+    """ 操作 JSON 的工具类 """
 
     @staticmethod
     def dump_s(obj, ensure_ascii=False, indent=2, map_=None):
@@ -40,15 +42,9 @@ class JsonManager(object):
 
     def distinct_s(self, string, filter_=None, map_=None, key=None):
         """ 传入 JSON 格式字符串，返回去重后的对象 """
-        keys, results = [], []
         obj = self.load_s(string, filter_=filter_, map_=map_)
         if not isinstance(obj, list): return obj
-        if not key: key = lambda x: x.__str__()
-        for item in obj:
-            if key(item) in keys: continue
-            results.append(item)
-            keys.append(key(item))
-        return results
+        return ListManager.distinct(obj, key=key)
 
     def distinct(self, filepath, encoding='utf-8', filter_=None, map_=None, key=None):
         """ 将文件里 JSON 对象去重后返回 """
@@ -57,20 +53,11 @@ class JsonManager(object):
         with open(filepath, 'r', encoding=encoding) as fp:
             return self.distinct_s(string=fp.read(), filter_=filter_, map_=map_, key=key)
 
-    def classify_s(self, string, filter_=None, map_=None, key=None, diff_key=None):
+    def classify_s(self, string, filter_=None, map_=None, key=None):
         """ 从字符串里读取对象并按照某种规则分类，返回一个分类后的字典或对象本身 """
-        results, diff_keys = {}, []
         obj = self.load_s(string, filter_=filter_, map_=map_)
-        if not isinstance(obj, list): return obj
-        if not key: key = lambda x: x.__str__()
-        for item in obj:
-            arr = results.get(key(item), [])
-            if diff_key:
-                if diff_key(item) in diff_keys: continue
-                else: diff_keys.append(diff_key(item))
-            arr.append(item)
-            results[key(item)] = arr
-        return results
+        if not key or not isinstance(obj, list): return obj
+        return ListManager.classify(obj, key=key)
 
     def classify(self, filepath, encoding='utf-8', filter_=None, map_=None, key=None):
         """ 从文件读取对象并分类，返回字典或对象本身 """
@@ -84,7 +71,7 @@ def main():
     manager = JsonManager()
     stus = [{'姓名': '卢研', '学校': '江苏大学'}, {'姓名': '刘妙霞', '学校': '江苏大学'}, {'姓名': '卢研', '学校': '常熟理工'}]
     stus_str = manager.dump_s(stus)
-    print(manager.classify_s(stus_str, key=lambda x: x['学校'], diff_key=lambda x: x['姓名']))
+    print(manager.classify_s(stus_str, key=lambda x: x['学校']))
 
 
 if __name__ == '__main__':

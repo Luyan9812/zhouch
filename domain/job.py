@@ -4,9 +4,10 @@ from attr import attr, attrs
 
 
 @attrs
-class BaseJob(object):
+class Job(object):
     """
-    Base class for Job.
+    职位的实体类。
+    属性主要包括：公司名称、公司地址、职位名称、最低薪资、最高薪资（以月为单位）。
     """
     company = attr(type=str, converter=lambda x: x.strip())
     location = attr(type=str, converter=lambda x: x.strip())
@@ -37,7 +38,7 @@ class BaseJob(object):
 
 
 def main():
-    job = BaseJob.new_job('xxx公司', 'xxx街道', '搬砖工', '100-200元/天')
+    job = Job.new_job('xxx公司', 'xxx街道', '搬砖工', '100-200元/天')
     print(job)
 
 
