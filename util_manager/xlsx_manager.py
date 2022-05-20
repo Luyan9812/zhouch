@@ -42,9 +42,11 @@ class XlsxManager(object):
         return self.wb[sheetname]
 
     def _save(self):
+        """ 保存修改 """
         self.wb.save(self.filepath)
 
     def size(self):
+        """ 获取当前工作表内容最大行列数 """
         return self.sheet.max_row, self.sheet.max_column
 
     def read(self, slice_=None):

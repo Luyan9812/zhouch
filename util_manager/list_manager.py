@@ -40,7 +40,7 @@ class ListManager(object):
 
 
 def main():
-    data = [{'姓名': '卢研'}, {'姓名': '刘妙霞'}]
+    data = [{'姓名': '小明'}, {'姓名': '小华'}]
     print(ListManager.classify(data, lambda x: x['姓名']))
 
 

@@ -69,7 +69,7 @@ class JsonManager(object):
 
 def main():
     manager = JsonManager()
-    stus = [{'姓名': '卢研', '学校': '江苏大学'}, {'姓名': '刘妙霞', '学校': '江苏大学'}, {'姓名': '卢研', '学校': '常熟理工'}]
+    stus = [{'姓名': '小明', '学校': '学校一'}, {'姓名': '小华', '学校': '学校一'}, {'姓名': '小明', '学校': '学校二'}]
     stus_str = manager.dump_s(stus)
     print(manager.classify_s(stus_str, key=lambda x: x['学校']))
 
