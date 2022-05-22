@@ -2,6 +2,7 @@ import os
 import openpyxl
 
 from openpyxl.utils.cell import get_column_letter
+from util_manager.list_manager import ListManager
 
 
 class XlsxManager(object):
@@ -10,30 +11,68 @@ class XlsxManager(object):
     def __init__(self):
         self.wb, self.sheet = None, None
         self.filepath, self.sheetname = '', ''
+        self.list_manager = ListManager()
 
-    @staticmethod
-    def create_excel(filepath):
+    def _create_excel(self, filepath):
         """ 返回全新的工作薄对象 """
         if not filepath.endswith('.xlsx'):
             raise ValueError('文件后缀不符')
         dirpath, _ = os.path.split(filepath)
         os.path.exists(dirpath) or os.makedirs(dirpath)
-        wb = openpyxl.Workbook()
-        wb.save(filepath)
-        return wb
+        self.wb = openpyxl.Workbook()
+        self.wb.save(filepath)
 
-    @staticmethod
-    def load_excel(filepath):
+    def _load_excel(self, filepath):
         """ 加载一个已经存在的工作薄 """
         if not filepath.endswith('.xlsx'):
             raise ValueError('文件后缀不符')
-        return openpyxl.load_workbook(filepath)
+        self.wb = openpyxl.load_workbook(filepath)
+
+    def init(self, filepath, sheetnames, create=False):
+        """ 初始化工作薄，工作表 """
+        self.filepath = filepath
+        self._create_excel(filepath) if create else self._load_excel(filepath)
+        self.new_and_clear_sheets(sheetnames)
+        sheetname = self.wb.sheetnames[0]
+        self.sheetname = sheetname
+        self.sheet = self.wb[sheetname]
 
     def switch(self, filepath, sheetname, create=False):
         """ 切换工作薄和工作表 """
+        if filepath != self.filepath:
+            self._create_excel(filepath) if create else self._load_excel(filepath)
+        if sheetname != self.sheetname:
+            self.sheet = self._get_sheet(sheetname=sheetname)
         self.filepath, self.sheetname = filepath, sheetname
-        self.wb = self.create_excel(filepath) if create else self.load_excel(filepath)
-        self.sheet = self._get_sheet(sheetname=sheetname)
+
+    def new_sheet(self, sheetname, index=-1):
+        """ 在指定下标新建一个 sheet """
+        if sheetname in self.wb.sheetnames: return
+        if index < 0: index = len(self.wb.sheetnames)
+        self.wb.create_sheet(sheetname, index)
+        self._save()
+
+    def new_sheets(self, sheetnames):
+        """ 依次往后新建一群 sheet """
+        for sheetname in sheetnames:
+            self.new_sheet(sheetname)
+
+    def new_and_clear_sheets(self, sheetnames):
+        """ 新建指定的所有 sheet 同时删除旧的 sheet """
+        self.new_sheets(sheetnames)
+        diff = self.list_manager.together(self.wb.sheetnames, filter_=lambda x: x not in sheetnames)
+        self.remove_sheets(diff)
+
+    def remove_sheet(self, sheetname):
+        """ 删除指定的一个 sheet """
+        if sheetname not in self.wb.sheetnames: return
+        del self.wb[sheetname]
+        self._save()
+
+    def remove_sheets(self, sheetnames):
+        """ 删除指定的所有 sheet """
+        for sheetname in sheetnames:
+            self.remove_sheet(sheetname)
 
     def _get_sheet(self, sheetname):
         """ 从工作薄对象里获取工作表，不存在就创建 """
@@ -49,12 +88,14 @@ class XlsxManager(object):
         """ 获取当前工作表内容最大行列数 """
         return self.sheet.max_row, self.sheet.max_column
 
-    def read(self, slice_=None):
+    def read(self, start=None, end=None):
         """ 读取从表格数据，可以指定读取的范围 """
         results = []
-        if not slice_:
-            slice_ = slice('A1', f'{get_column_letter(self.sheet.max_column)}{self.sheet.max_row}')
-        area = self.sheet[slice_]
+        if not start:
+            start = 'A1'
+        if not end:
+            end = f'{get_column_letter(self.sheet.max_column)}{self.sheet.max_row}'
+        area = self.sheet[start: end]
         for line in area:
             tmp = []
             for cell in line:

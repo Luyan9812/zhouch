@@ -1,8 +1,11 @@
+from functools import reduce
+
+
 class ListManager(object):
     """ 操作 List 的工具类 """
 
     @staticmethod
-    def together(arr, filter_=None, map_=None):
+    def together(arr, filter_=None, map_=None, reduce_=None):
         """ 对 list 做 map 和 filter 操作，先 filter 后 map """
         if not isinstance(arr, list):
             raise TypeError
@@ -10,6 +13,8 @@ class ListManager(object):
             arr = list(filter(filter_, arr))
         if map_:
             arr = list(map(map_, arr))
+        if reduce_:
+            arr = reduce(reduce_, arr)
         return arr
 
     @staticmethod
@@ -41,7 +46,7 @@ class ListManager(object):
 
 def main():
     data = [{'姓名': '小明'}, {'姓名': '小华'}]
-    print(ListManager.classify(data, lambda x: x['姓名']))
+    print(reduce(lambda x1, x2: x1['姓名'] + x2['姓名'], data))
 
 
 if __name__ == '__main__':
