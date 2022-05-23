@@ -41,7 +41,7 @@ class XlsxManager(object):
         """ 切换工作薄和工作表 """
         if filepath != self.filepath:
             self._create_excel(filepath) if create else self._load_excel(filepath)
-        if sheetname != self.sheetname:
+        if filepath != self.filepath or sheetname != self.sheetname:
             self.sheet = self._get_sheet(sheetname=sheetname)
         self.filepath, self.sheetname = filepath, sheetname
 
@@ -86,7 +86,10 @@ class XlsxManager(object):
 
     def size(self):
         """ 获取当前工作表内容最大行列数 """
-        return self.sheet.max_row, self.sheet.max_column
+        row, col = self.sheet.max_row, self.sheet.max_column
+        if row == 1 and col == 1 and not self.sheet['A1'].value:
+            row, col = 0, 0
+        return row, col
 
     def read(self, start=None, end=None):
         """ 读取从表格数据，可以指定读取的范围 """
