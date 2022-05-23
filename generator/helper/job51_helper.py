@@ -22,7 +22,7 @@ class Job51Helper(object):
                  '康复治疗', '医学影像学']
 
     def __init__(self, settings_path):
-        self._process_list = []
+        self._progress_list = []
         self.xlsx_manager = XlsxManager()
         self.json_manager = JsonManager()
         self.settings_path = settings_path
@@ -30,14 +30,14 @@ class Job51Helper(object):
     @property
     def progress_list(self):
         """ 爬取进度所在的列表 """
-        if not self._process_list:
+        if not self._progress_list:
             self.read()
-        return self._process_list
+        return self._progress_list
 
     def read(self):
         """ 读取爬取记录，有配置文件就从配置文件读取，否则从存储目录解析 """
         self.load_from_settings_file() if os.path.exists(self.settings_path) else self.scan()
-        for item in self._process_list:
+        for item in self._progress_list:
             item[4] = eval(item[4])
 
     def scan(self):
@@ -48,31 +48,31 @@ class Job51Helper(object):
             for filename in os.listdir(dirpath):
                 filepath = os.path.join(dirpath, filename)
                 if not filename.startswith('_'): continue
-                self.xlsx_manager.switch(filepath, 'process')
-                self._process_list.extend(self.xlsx_manager.read(start='A2'))
-        subject_degree_list = list(map(lambda x: [x[0], x[1]], self._process_list))
+                self.xlsx_manager.switch(filepath, 'progress')
+                self._progress_list.extend(self.xlsx_manager.read(start='A2'))
+        subject_degree_list = list(map(lambda x: [x[0], x[1]], self._progress_list))
         for subject in self._subjects:
             for degree in self._degrees_map:
                 if [subject, degree] in subject_degree_list: continue
-                self._process_list.append([subject, degree, 0, 0, 'False'])
-        self._process_list.sort(key=lambda x: (x[0], self._degrees_map[x[1]]))
+                self._progress_list.append([subject, degree, 0, 0, 'False'])
+        self._progress_list.sort(key=lambda x: (x[0], self._degrees_map[x[1]]))
         self.write_to_settings_file()
 
     def load_from_settings_file(self):
         """ 从配置文件加载爬取进度 """
-        self._process_list = self.json_manager.load(self.settings_path)
+        self._progress_list = self.json_manager.load(self.settings_path)
 
     def write_to_settings_file(self):
         """ 将读取的进度写进配置文件 """
         with open(self.settings_path, 'w', encoding='utf-8') as fp:
             fp.write('[')
             last_subject = ''
-            for i, item in enumerate(self._process_list):
+            for i, item in enumerate(self._progress_list):
                 if last_subject != item[0]:
                     fp.write('\n\t')
                     last_subject = item[0]
                 fp.write(f'["{item[0]}", "{item[1]}", {item[2]}, {item[3]}, "{item[4]}"]')
-                if i < len(self._process_list) - 1: fp.write(', ')
+                if i < len(self._progress_list) - 1: fp.write(', ')
             fp.write('\n]')
 
 

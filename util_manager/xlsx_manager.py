@@ -91,6 +91,10 @@ class XlsxManager(object):
             row, col = 0, 0
         return row, col
 
+    def empty(self):
+        """ 返回 Excel 表是否为空 """
+        return self.size() == (0, 0)
+
     def read(self, start=None, end=None):
         """ 读取从表格数据，可以指定读取的范围 """
         results = []

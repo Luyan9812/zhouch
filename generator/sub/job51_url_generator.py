@@ -16,11 +16,11 @@ class Job51UrlGenerator(BaseUrlGenerator):
         super().__init__()
         self.exe_index = 0
         self.helper = Job51Helper(self.settings_path)
-        self.process_list = self.helper.progress_list
+        self.progress_list = self.helper.progress_list
 
     def next(self):
         """ 返回下一类网址（例如专业或学位不同） """
-        for i, item in enumerate(self.process_list):
+        for i, item in enumerate(self.progress_list):
             if item[4]: continue
             self.exe_index = i
             yield self.next_page()
@@ -33,7 +33,7 @@ class Job51UrlGenerator(BaseUrlGenerator):
 
     def info(self):
         """ 返回当前网址的信息 """
-        return self.process_list[self.exe_index]
+        return self.progress_list[self.exe_index]
 
     def _genurl(self):
         """ 生成 URL """
