@@ -17,10 +17,10 @@ class Job(ItemBean):
     lower_salary = attr(type=float, init=False, default=-1)
     higher_salary = attr(type=float, init=False, default=-1)
 
-    low_k = high_k = [1000, 10000, 835, 30]
+    low_k = high_k = (1000, 10000, 835, 30, 30, 240, 1000)
     patterns = [
         '([0-9.]+)-([0-9.]+)千/月', '([0-9.]+)-([0-9.]+)万/月', '([0-9.]+)-([0-9.]+)万/年',
-        '([0-9.]+)-([0-9.]+)元/天'
+        '([0-9.]+)-([0-9.]+)元/天', '(([0-9.]+))元/天', '(([0-9.]+))元/小时', '(([0-9.]+))千以下/月'
     ]
 
     def set_salary(self, salary):
@@ -31,7 +31,17 @@ class Job(ItemBean):
             self.lower_salary = low * self.low_k[i]
             self.higher_salary = high * self.high_k[i]
             break
+        if self.lower_salary < 0:
+            self._write_log(f'({self.lower_salary}, {self.higher_salary}) => {salary}')
+        if self.lower_salary > 10_0000:
+            self._write_log(f'({self.lower_salary}, {self.higher_salary}) => {salary}')
         return self
+
+    @staticmethod
+    def _write_log(string):
+        log_path = '/Users/luyan/Desktop/log.txt'
+        with open(log_path, 'a', encoding='utf-8') as f:
+            f.write(f'{string}\n')
 
     @classmethod
     def new_job(cls, company, location, job_name, salary):

@@ -66,11 +66,14 @@ class BaseRequestsSpider(object):
 
     def run(self, use_proxy=False):
         """ 入口函数 """
-        for url in self.next():
-            try:
-                while url:
-                    proxies = self.proxy_manager.random() if use_proxy else None
-                    url = self._process(url, proxies=proxies)
-            except Exception as e:
-                logger.error(e)
-                self.update()
+        try:
+            for url in self.next():
+                try:
+                    while url:
+                        proxies = self.proxy_manager.random() if use_proxy else None
+                        url = self._process(url, proxies=proxies)
+                except Exception as e:
+                    logger.error(e)
+                    self.update()
+        finally:
+            self.update()

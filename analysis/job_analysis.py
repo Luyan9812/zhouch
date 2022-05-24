@@ -46,8 +46,10 @@ class JobWriter(object):
             self.xmanager.write_line(1, self.headers_progress())
         lines = self.xmanager.read(start='A2')
         index = ListManager.find(lines, data, key=lambda x: x[1])
-        if index < 0: lines.append(data)
-        else: lines[index] = data
+        if index < 0:
+            lines.append(data)
+        else:
+            lines[index] = data
         self.xmanager.write_lines(2, lines)
 
 
@@ -87,7 +89,8 @@ class JobDistincter(object):
         for pair in excel_path_pairs:
             if isinstance(pair, (list, tuple)):
                 self.distinct_one(*pair)
-            else: self.distinct_one(pair, to_excel_path=None)
+            else:
+                self.distinct_one(pair, to_excel_path=None)
 
     def distinct_root(self, root_path=None):
         """ 给定文件根目录（zhouch/jobs），解析其下所有专业下所有 xlsx 文件 """

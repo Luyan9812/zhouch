@@ -1,5 +1,5 @@
-n = [1.12499, 1.12601, 1.12501, 1.12500, 1.13500]
+from spiders.sub.job51_spider import Job51Spider
 
 
-for i in n:
-    print(round(i, 2))
+spider = Job51Spider()
+spider.run()

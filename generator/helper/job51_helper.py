@@ -40,7 +40,6 @@ class Job51Helper(object):
         for item in self._progress_list:
             if isinstance(item[4], str):
                 item[4] = eval(item[4])
-            else: print(item, type(item[4]))
 
     def scan(self):
         """ 扫描本地目录获取已爬取记录 """
@@ -85,4 +84,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-    # print(["name"] in [['name'], ['age']])
