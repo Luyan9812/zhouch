@@ -38,7 +38,9 @@ class Job51Helper(object):
         """ 读取爬取记录，有配置文件就从配置文件读取，否则从存储目录解析 """
         self.load_from_settings_file() if os.path.exists(self.settings_path) else self.scan()
         for item in self._progress_list:
-            item[4] = eval(item[4])
+            if isinstance(item[4], str):
+                item[4] = eval(item[4])
+            else: print(item, type(item[4]))
 
     def scan(self):
         """ 扫描本地目录获取已爬取记录 """

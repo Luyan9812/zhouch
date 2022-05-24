@@ -43,6 +43,13 @@ class ListManager(object):
             results[key(item)] = tmp
         return results
 
+    @staticmethod
+    def find(arr, ele, key=None):
+        if not key: key = lambda x: x
+        for i, item in enumerate(arr):
+            if key(ele) == key(item): return i
+        return -1
+
 
 def main():
     data = [{'姓名': '小明'}, {'姓名': '小华'}]

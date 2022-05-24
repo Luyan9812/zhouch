@@ -6,8 +6,14 @@ from retrying import retry
 from fake_useragent import UserAgent
 
 
+class ItemBean(object):
+    """ 数据类的基类，不需要有什么实现 """
+
+
 class BaseRequestsSpider(object):
     """ 使用requests请求的基类 """
+
+    ENCODING = 'utf-8'
 
     def __init__(self):
         self.cookie = ''
@@ -27,7 +33,9 @@ class BaseRequestsSpider(object):
         try:
             logger.info(f'Begin fetch {url}')
             resp = requests.get(url, headers=self.get_request_headers(), proxies=proxies)
-            if resp.status_code == 200: return resp.text
+            if resp.status_code == 200:
+                resp.encoding = self.ENCODING
+                return resp.text
         except requests.RequestException:
             return None
 
@@ -43,7 +51,7 @@ class BaseRequestsSpider(object):
         """ 处理爬取的对象 """
         raise NotImplementedError
 
-    def on_close(self):
+    def update(self):
         """ 爬取结束的时候调用 """
 
     def _process(self, url, proxies=None):
@@ -51,19 +59,18 @@ class BaseRequestsSpider(object):
         try:
             html = self.fetch(url, proxies=proxies)
             for item in self.parse(html):
-                if item is str: return item
+                if not isinstance(item, ItemBean): return item
                 else: self.process_item(item)
         except retrying.RetryError:
             logger.error(f'Error: {url}')
 
     def run(self, use_proxy=False):
         """ 入口函数 """
-        try:
-            for url in self.next():
+        for url in self.next():
+            try:
                 while url:
                     proxies = self.proxy_manager.random() if use_proxy else None
                     url = self._process(url, proxies=proxies)
-        except Exception as e:
-            logger.error(e)
-        finally:
-            self.on_close()
+            except Exception as e:
+                logger.error(e)
+                self.update()

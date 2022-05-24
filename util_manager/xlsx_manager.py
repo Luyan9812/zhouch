@@ -32,7 +32,8 @@ class XlsxManager(object):
         """ 初始化工作薄，工作表 """
         self.filepath = filepath
         self._create_excel(filepath) if create else self._load_excel(filepath)
-        self.new_and_clear_sheets(sheetnames)
+        if self.wb.sheetnames != sheetnames:
+            self.new_and_clear_sheets(sheetnames)
         sheetname = self.wb.sheetnames[0]
         self.sheetname = sheetname
         self.sheet = self.wb[sheetname]

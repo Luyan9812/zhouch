@@ -1,3 +1,4 @@
+from urllib import parse
 from generator.helper.job51_helper import Job51Helper
 from generator.base_url_generator import BaseUrlGenerator
 
@@ -9,6 +10,8 @@ class Job51UrlGenerator(BaseUrlGenerator):
     part_kw = '000000,000000,0000,00,9,99,{},2,'
     part_pn = '{}.html?lang=c&postchannel=0000&workyear=01&cotype=99&'
     part_dg = 'degreefrom={}&jobterm=99&companysize=99&ord_field=0&dibiaoid=0&line=&welfare='
+
+    degree_map = {'本科': '04', '硕士': '05', '博士': '06'}
 
     settings_path = '/Users/luyan/Documents/PyCharm/zhouch/generator/settings/Job51UrlGenerator.gs'
 
@@ -38,6 +41,8 @@ class Job51UrlGenerator(BaseUrlGenerator):
     def _genurl(self):
         """ 生成 URL """
         kw, degree, _, pages, __ = self.info()
+        degree = self.degree_map[degree]
+        kw = parse.quote(kw).replace('%', '%25')
         return self.base_url + self.part_kw.format(kw) + self.part_pn.format(pages) + self.part_dg.format(degree)
 
     def update_settings(self):

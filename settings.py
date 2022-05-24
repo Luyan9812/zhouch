@@ -14,3 +14,6 @@ PA_DAI_LI_PROXY_URL = env.str('PADAILI_PROXY_URL')
 # 对于获取到的代理是否需要测试
 PROXY_TEST = True
 PROXY_TEST_URL = 'https://www.baidu.com'
+
+# cookie
+JOB51_COOKIE = env.str('JOB51_COOKIE')

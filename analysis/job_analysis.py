@@ -6,6 +6,51 @@ from util_manager.list_manager import ListManager
 from util_manager.file_manager import FileManager
 
 
+class JobWriter(object):
+    """ 将职位信息写进 xlsx 工作薄里 """
+
+    def __init__(self):
+        self.xmanager = XlsxManager()
+        self.progress_sheetname = 'progress'
+
+    @staticmethod
+    def headers_job():
+        """ 职位表表头信息 """
+        return ['公司', '地区', '职位名称', '最低薪资', '最高薪资']
+
+    @staticmethod
+    def headers_progress():
+        """ 进度表表头信息 """
+        return ['专业', '学位', '已爬取数据条数', '已爬取数据页数', '是否爬取结束']
+
+    def get_sheetnames(self):
+        """ xlsx 工作薄 sheet 表的名字 """
+        return ['本科', '硕士', '博士', self.progress_sheetname]
+
+    def write_job(self, excel_path, sheetname, data):
+        """ 往 xlsx 工作薄里写入职位数据 """
+        data = list(map(lambda x: x.__dict__.values(), data))
+        if not os.path.exists(excel_path):
+            self.xmanager.init(excel_path, self.get_sheetnames(), create=True)
+        self.xmanager.switch(excel_path, sheetname, create=False)
+        if self.xmanager.empty():
+            self.xmanager.write_line(1, self.headers_job())
+        self.xmanager.append_lines(data)
+
+    def write_progress(self, excel_path, data):
+        """ 往 xlsx 工作薄里写入爬取进度 """
+        if not os.path.exists(excel_path):
+            self.xmanager.init(excel_path, self.get_sheetnames(), create=True)
+        self.xmanager.switch(excel_path, self.progress_sheetname, create=False)
+        if self.xmanager.empty():
+            self.xmanager.write_line(1, self.headers_progress())
+        lines = self.xmanager.read(start='A2')
+        index = ListManager.find(lines, data, key=lambda x: x[1])
+        if index < 0: lines.append(data)
+        else: lines[index] = data
+        self.xmanager.write_lines(2, lines)
+
+
 class JobDistincter(object):
     """ 去重类。负责将爬取下来的数据按照公司、职位名称作为标准去重并写进新 xlsx 文件里 """
 

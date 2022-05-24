@@ -1,10 +1,11 @@
 import re
 
 from attr import attr, attrs
+from spiders.base_requests_spider import ItemBean
 
 
 @attrs
-class Job(object):
+class Job(ItemBean):
     """
     职位的实体类。
     属性主要包括：公司名称、公司地址、职位名称、最低薪资、最高薪资（以月为单位）。
